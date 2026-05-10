@@ -1,0 +1,98 @@
+[
+  {
+    "id": "q1",
+    "text": "当一段旅程即将结束时，你更想留下些什么？",
+    "leftLabel": "把碎片都记录下来",
+    "rightLabel": "让结局自然消散",
+    "leftScores": { "memory": 2, "logic": 0.5 },
+    "rightScores": { "memory": -1, "risk": 1, "mask": 0.5 }
+  },
+  {
+    "id": "q2",
+    "text": "面对混乱局面，你第一反应更接近哪一种？",
+    "leftLabel": "先推演可控路线",
+    "rightLabel": "先冲进变量中心",
+    "leftScores": { "control": 2, "logic": 1 },
+    "rightScores": { "risk": 2, "mask": 0.5 }
+  },
+  {
+    "id": "q3",
+    "text": "如果人生像游戏，你更享受哪种时刻？",
+    "leftLabel": "找到系统漏洞",
+    "rightLabel": "押上筹码翻盘",
+    "leftScores": { "logic": 1.5, "control": 0.5, "risk": 0.5 },
+    "rightScores": { "risk": 2, "mask": 0.5 }
+  },
+  {
+    "id": "q4",
+    "text": "别人评价你时，哪句话更容易说中你？",
+    "leftLabel": "看起来随意，其实心里有棋盘",
+    "rightLabel": "看起来轻松，其实藏着很多层身份",
+    "leftScores": { "control": 2, "logic": 1 },
+    "rightScores": { "mask": 2, "risk": 0.5 }
+  },
+  {
+    "id": "q5",
+    "text": "你更害怕哪一种空白？",
+    "leftLabel": "失去曾经是谁的证据",
+    "rightLabel": "看不见下一步的可能",
+    "leftScores": { "memory": 2, "control": 0.5 },
+    "rightScores": { "risk": 1.5, "logic": 0.5 }
+  },
+  {
+    "id": "q6",
+    "text": "当规则挡住目标时，你更可能怎么做？",
+    "leftLabel": "读懂规则再改写它",
+    "rightLabel": "戴上新面具绕过去",
+    "leftScores": { "logic": 2, "control": 1 },
+    "rightScores": { "mask": 2, "risk": 1 }
+  },
+  {
+    "id": "q7",
+    "text": "你对“命运剧本”的态度更像？",
+    "leftLabel": "剧本存在，就找到最优演法",
+    "rightLabel": "剧本存在，就把舞台掀起来",
+    "leftScores": { "control": 2, "mask": 0.5 },
+    "rightScores": { "risk": 2, "mask": 1 }
+  },
+  {
+    "id": "q8",
+    "text": "面对旧伤或旧事，你通常会？",
+    "leftLabel": "反复回看，直到理解它",
+    "rightLabel": "把它烧成继续前进的燃料",
+    "leftScores": { "memory": 2, "logic": 0.5 },
+    "rightScores": { "risk": 1.5, "control": 0.5 }
+  },
+  {
+    "id": "q9",
+    "text": "你更喜欢成为团队中的哪种力量？",
+    "leftLabel": "冷静诊断问题的人",
+    "rightLabel": "让气氛变得不可预测的人",
+    "leftScores": { "logic": 2, "control": 0.5 },
+    "rightScores": { "mask": 2, "risk": 1 }
+  },
+  {
+    "id": "q10",
+    "text": "如果只能带一个象征物上路，你会选？",
+    "leftLabel": "相机、笔记或旧票根",
+    "rightLabel": "骰子、面具或未署名剧本",
+    "leftScores": { "memory": 2, "logic": 0.5 },
+    "rightScores": { "risk": 1, "mask": 1.5, "control": 0.5 }
+  },
+  {
+    "id": "q11",
+    "text": "当你被误解时，你更倾向于？",
+    "leftLabel": "拿事实和逻辑解释清楚",
+    "rightLabel": "保留误解，让它成为保护色",
+    "leftScores": { "logic": 2, "control": 0.5 },
+    "rightScores": { "mask": 2, "memory": 0.5 }
+  },
+  {
+    "id": "q12",
+    "text": "你更相信哪种胜利？",
+    "leftLabel": "提前布好的全局预判",
+    "rightLabel": "临场下注后的漂亮逆转",
+    "leftScores": { "control": 2, "logic": 1 },
+    "rightScores": { "risk": 2, "mask": 0.5 }
+  }
+]
