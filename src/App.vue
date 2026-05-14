@@ -21,6 +21,7 @@ const dimensions = [
 const view = ref('home')
 const currentIndex = ref(0)
 const answers = ref({})
+const currentSliderValue = ref(0)
 const imageErrors = ref({})
 const posterRef = ref(null)
 const isExporting = ref(false)
@@ -31,32 +32,59 @@ const answeredCount = computed(() => Object.keys(answers.value).length)
 const progress = computed(() => Math.round((answeredCount.value / questions.length) * 100))
 const isComplete = computed(() => answeredCount.value === questions.length)
 
+const theoreticalBounds = computed(() => {
+  const maxScores = Object.fromEntries(dimensions.map(({ key }) => [key, 0]))
+  const minScores = Object.fromEntries(dimensions.map(({ key }) => [key, 0]))
+
+  questions.forEach((q) => {
+    dimensions.forEach(({ key }) => {
+      const leftVal = q.leftScores[key] || 0
+      const rightVal = q.rightScores[key] || 0
+      maxScores[key] += Math.max(leftVal, rightVal, 0)
+      minScores[key] += Math.min(leftVal, rightVal, 0)
+    })
+  })
+
+  return { maxScores, minScores }
+})
+
 const rawScores = computed(() => {
   const scores = Object.fromEntries(dimensions.map(({ key }) => [key, 0]))
 
-  Object.entries(answers.value).forEach(([questionId, side]) => {
+  Object.entries(answers.value).forEach(([questionId, value]) => {
     const question = questions.find((item) => item.id === questionId)
     if (!question) return
-    const delta = side === 'left' ? question.leftScores : question.rightScores
-    Object.entries(delta).forEach(([key, value]) => {
-      scores[key] += value
-    })
+    
+    if (value < 0) {
+      const weight = Math.abs(value) / 5
+      Object.entries(question.leftScores).forEach(([key, score]) => {
+        scores[key] += score * weight
+      })
+    } else if (value > 0) {
+      const weight = value / 5
+      Object.entries(question.rightScores).forEach(([key, score]) => {
+        scores[key] += score * weight
+      })
+    }
   })
 
   return scores
 })
 
 const normalizedScores = computed(() => {
-  const values = Object.values(rawScores.value)
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-
-  if (max === min) {
-    return Object.fromEntries(dimensions.map(({ key }) => [key, 0.5]))
-  }
+  const { maxScores, minScores } = theoreticalBounds.value
 
   return Object.fromEntries(
-    dimensions.map(({ key }) => [key, Number(((rawScores.value[key] - min) / (max - min)).toFixed(3))])
+    dimensions.map(({ key }) => {
+      const max = maxScores[key]
+      const min = minScores[key]
+      const val = rawScores.value[key]
+      
+      if (max === min) return [key, 0.5]
+      
+      const normalized = Math.max(0, Math.min(1, (val - min) / (max - min)))
+      return [key, Number(normalized.toFixed(3))]
+    })
   )
 })
 
@@ -86,18 +114,21 @@ const resultThemeStyle = computed(() => ({
 function startTest() {
   view.value = 'test'
   currentIndex.value = 0
+  currentSliderValue.value = 0
 }
 
 function resetTest() {
   answers.value = {}
   currentIndex.value = 0
+  currentSliderValue.value = 0
   view.value = 'home'
 }
 
-function chooseAnswer(side) {
-  answers.value = { ...answers.value, [currentQuestion.value.id]: side }
+function submitAnswer() {
+  answers.value = { ...answers.value, [currentQuestion.value.id]: currentSliderValue.value }
   if (currentIndex.value < questions.length - 1) {
     currentIndex.value += 1
+    currentSliderValue.value = 0
   } else {
     view.value = 'result'
   }
@@ -106,6 +137,7 @@ function chooseAnswer(side) {
 function previousQuestion() {
   if (currentIndex.value > 0) {
     currentIndex.value -= 1
+    currentSliderValue.value = answers.value[currentQuestion.value.id] ?? 0
   }
 }
 
@@ -236,29 +268,36 @@ async function exportPoster() {
       <article class="question-card">
         <p class="question-kicker">选择更像你的那一边</p>
         <h2>{{ currentQuestion.text }}</h2>
-        <div class="answer-grid">
-          <button
-            class="answer-button left"
-            :class="{ selected: answers[currentQuestion.id] === 'left' }"
-            type="button"
-            @click="chooseAnswer('left')"
-          >
-            <span>A</span>
-            {{ currentQuestion.leftLabel }}
-          </button>
-          <button
-            class="answer-button right"
-            :class="{ selected: answers[currentQuestion.id] === 'right' }"
-            type="button"
-            @click="chooseAnswer('right')"
-          >
-            <span>B</span>
-            {{ currentQuestion.rightLabel }}
-          </button>
+        
+        <div class="answer-slider-wrap">
+          <div class="slider-labels">
+            <span class="left-label">A. {{ currentQuestion.leftLabel }}</span>
+            <span class="right-label">B. {{ currentQuestion.rightLabel }}</span>
+          </div>
+          
+          <div class="slider-control">
+            <span class="val-min">-5</span>
+            <input 
+              type="range" 
+              min="-5" 
+              max="5" 
+              step="1" 
+              v-model.number="currentSliderValue" 
+              class="answer-slider"
+            />
+            <span class="val-max">5</span>
+          </div>
+          
+          <div class="current-value">
+            倾向度: {{ currentSliderValue > 0 ? '+' : '' }}{{ currentSliderValue }}
+          </div>
         </div>
       </article>
 
       <div class="test-actions">
+        <button class="primary-button next-button" type="button" @click="submitAnswer">
+          {{ currentIndex < questions.length - 1 ? '下一题' : '查看结果' }}
+        </button>
         <button class="ghost-button" type="button" :disabled="currentIndex === 0" @click="previousQuestion">上一题</button>
         <button class="ghost-button" type="button" @click="resetTest">退出</button>
       </div>
