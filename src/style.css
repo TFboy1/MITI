@@ -263,22 +263,29 @@ h1 {
   text-align: center;
 }
 
-.answer-slider-wrap {
+.answer-picker-wrap {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 600px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
-.slider-labels {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+.choice-labels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
   color: #263a35;
-  font-size: clamp(16px, 2vw, 18px);
+  font-size: clamp(16px, 2vw, 19px);
   font-weight: 800;
   line-height: 1.45;
+}
+
+.left-label,
+.right-label {
+  padding: 18px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .left-label {
@@ -291,69 +298,85 @@ h1 {
   color: #c79437;
 }
 
-.slider-control {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.answer-options {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(54px, 1fr));
+  gap: 10px;
 }
 
-.val-min, .val-max {
-  font-family: "Trebuchet MS", Verdana, sans-serif;
-  font-size: 14px;
-  font-weight: 800;
-  color: #6c7775;
-}
-
-.answer-slider {
-  flex: 1;
-  -webkit-appearance: none;
-  width: 100%;
-  height: 8px;
-  background: rgba(35, 48, 44, 0.1);
+.answer-option {
+  min-height: 46px;
+  border: 1px solid rgba(35, 48, 44, 0.12);
   border-radius: 999px;
-  outline: none;
-}
-
-.answer-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #2f8a7f;
+  color: #52615e;
+  background: rgba(255, 255, 255, 0.74);
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+  font-size: 15px;
+  font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(47, 138, 127, 0.4);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
 
-.answer-slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+.answer-option:hover {
+  transform: translateY(-2px);
+  border-color: rgba(47, 138, 127, 0.35);
+  box-shadow: 0 8px 18px rgba(35, 48, 44, 0.08);
+}
+
+.answer-option.selected {
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(35, 48, 44, 0.15);
+}
+
+.answer-option.selected.negative.level-1 {
+  border-color: #5ea79f;
+  background: #5ea79f;
+}
+
+.answer-option.selected.negative.level-2 {
+  border-color: #3f9288;
+  background: #3f9288;
+}
+
+.answer-option.selected.negative.level-3 {
+  border-color: #2f8a7f;
   background: #2f8a7f;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 4px 12px rgba(47, 138, 127, 0.4);
-  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
-.answer-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  box-shadow: 0 6px 16px rgba(47, 138, 127, 0.5);
+.answer-option.selected.positive.level-1 {
+  border-color: #d8b46e;
+  background: #d8b46e;
 }
 
-.answer-slider::-moz-range-thumb:hover {
-  transform: scale(1.15);
-  box-shadow: 0 6px 16px rgba(47, 138, 127, 0.5);
+.answer-option.selected.positive.level-2 {
+  border-color: #cfa052;
+  background: #cfa052;
+}
+
+.answer-option.selected.positive.level-3 {
+  border-color: #c79437;
+  background: #c79437;
+}
+
+.answer-option.selected.neutral {
+  border-color: #5f706c;
+  background: #5f706c;
 }
 
 .current-value {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
   text-align: center;
   font-family: "Trebuchet MS", Verdana, sans-serif;
   font-size: 18px;
   font-weight: 800;
   color: #20302c;
   margin-top: 8px;
+}
+
+.current-value span {
+  color: #2f8a7f;
 }
 
 .test-actions {
@@ -734,13 +757,31 @@ h1 {
     width: 100%;
   }
 
-  .slider-labels {
-    flex-direction: column;
+  .choice-labels {
+    grid-template-columns: 1fr;
     gap: 8px;
   }
-  
+
   .left-label, .right-label {
     text-align: left;
+  }
+
+  .answer-options {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .answer-option {
+    width: auto;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0;
+    font-size: 13px;
+  }
+
+  .current-value {
+    flex-direction: column;
   }
 
   .dimension-row {
