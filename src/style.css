@@ -547,6 +547,13 @@ h1 {
   fill: var(--accent);
 }
 
+.radar-label {
+  fill: #20302c;
+  font-family: "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .radar-legend {
   display: grid;
   gap: 8px;

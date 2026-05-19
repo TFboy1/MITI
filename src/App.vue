@@ -435,6 +435,17 @@ async function exportPoster() {
                 :cy="point.y"
                 r="3"
               />
+              <text
+                v-for="axis in radarAxisData"
+                :key="`${axis.key}-label`"
+                class="radar-label"
+                :x="axis.labelX"
+                :y="axis.labelY"
+                text-anchor="middle"
+                dominant-baseline="middle"
+              >
+                {{ axis.label }}
+              </text>
             </svg>
             <div class="radar-legend">
               <div v-for="dimension in radarAxisData" :key="dimension.key" class="radar-legend-item">
