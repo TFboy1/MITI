@@ -26,7 +26,7 @@ button {
 }
 
 .app-shell {
-  width: min(1180px, calc(100% - 36px));
+  width: min(1240px, calc(100% - 36px));
   margin: 0 auto;
   padding: 26px 0 42px;
 }
@@ -63,6 +63,8 @@ button {
 
 .nav-meta {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 12px;
   color: #6f7e7b;
   font-family: "Trebuchet MS", Verdana, sans-serif;
@@ -71,13 +73,14 @@ button {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.25fr);
-  gap: 54px;
-  align-items: center;
-  min-height: 70vh;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+  gap: 42px;
+  align-items: start;
 }
 
 .hero-copy {
+  position: sticky;
+  top: 24px;
   max-width: 560px;
 }
 
@@ -102,8 +105,8 @@ p {
 h1 {
   margin: 0;
   color: #20302c;
-  font-size: clamp(44px, 7vw, 82px);
-  line-height: 0.98;
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: 1;
   letter-spacing: 0;
 }
 
@@ -128,7 +131,7 @@ h1 {
 .ghost-button {
   min-height: 48px;
   padding: 0 24px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-family: "Trebuchet MS", Verdana, sans-serif;
   font-weight: 900;
@@ -157,34 +160,66 @@ h1 {
   transform: translateY(-2px);
 }
 
-.character-cloud {
+.character-showcase {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 22px;
+}
+
+.game-section {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 18px 46px rgba(35, 48, 44, 0.08);
+}
+
+.game-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.game-heading h2 {
+  margin: 0;
+  color: #20302c;
+  font-size: clamp(22px, 2.6vw, 32px);
+}
+
+.game-heading span {
+  color: #6f7e7b;
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+  font-weight: 800;
+}
+
+.game-character-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .mini-card {
-  min-height: 176px;
-  padding: 14px;
-  border-radius: 8px;
+  min-height: 150px;
+  padding: 10px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 16px 46px rgba(35, 48, 44, 0.08);
+  box-shadow: 0 12px 30px rgba(35, 48, 44, 0.07);
 }
 
 .mini-portrait {
   display: grid;
-  height: 100px;
-  margin-bottom: 12px;
+  height: 88px;
+  margin-bottom: 10px;
   place-items: center;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--accent);
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--accent), white 72%), rgba(255, 255, 255, 0.88)),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.35) 0 10px, transparent 10px 20px);
-  font-family: "Trebuchet MS", Verdana, sans-serif;
-  font-size: clamp(16px, 2vw, 22px);
+  font-size: 18px;
   font-weight: 900;
+  text-align: center;
 }
 
 .mini-portrait img,
@@ -201,13 +236,15 @@ h1 {
 }
 
 .mini-card strong {
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .mini-card small {
-  margin-top: 5px;
+  margin-top: 4px;
   color: #6c7775;
   font-family: "Trebuchet MS", Verdana, sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .test-stage {
@@ -245,7 +282,7 @@ h1 {
 
 .question-card {
   padding: clamp(26px, 5vw, 56px);
-  border-radius: 8px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 28px 70px rgba(35, 48, 44, 0.1);
 }
@@ -284,7 +321,7 @@ h1 {
 .left-label,
 .right-label {
   padding: 18px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -389,11 +426,11 @@ h1 {
 
 .result-card {
   display: grid;
-  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
   gap: clamp(24px, 5vw, 58px);
   align-items: center;
   padding: clamp(22px, 4vw, 42px);
-  border-radius: 8px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 26px 70px rgba(35, 48, 44, 0.11);
 }
@@ -402,7 +439,7 @@ h1 {
 .portrait-placeholder,
 .poster-art {
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 14px;
 }
 
 .result-portrait {
@@ -423,24 +460,37 @@ h1 {
 }
 
 .portrait-placeholder span {
-  font-family: "Trebuchet MS", Verdana, sans-serif;
-  font-size: clamp(34px, 7vw, 86px);
+  padding: 0 18px;
+  font-size: clamp(30px, 6vw, 72px);
   font-weight: 900;
+  text-align: center;
 }
 
 .result-copy h2 {
   margin: 0;
   color: #20302c;
-  font-size: clamp(34px, 5vw, 64px);
-  line-height: 1.05;
+  font-size: clamp(32px, 4.6vw, 58px);
+  line-height: 1.08;
 }
 
-.result-en {
-  margin: 8px 0 0;
+.result-game {
+  display: inline-flex;
+  margin: 0 0 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
   color: var(--accent);
+  background: var(--accent-soft);
   font-family: "Trebuchet MS", Verdana, sans-serif;
-  font-size: clamp(34px, 5vw, 72px);
+  font-size: 13px;
   font-weight: 900;
+}
+
+.result-archetype {
+  margin: 12px 0 0;
+  color: var(--accent);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 900;
+  line-height: 1.2;
 }
 
 .result-core {
@@ -457,47 +507,73 @@ h1 {
   line-height: 1.7;
 }
 
-.dimension-list {
+.dimension-radar {
   display: grid;
-  gap: 12px;
-}
-
-.dimension-row {
-  display: grid;
-  grid-template-columns: 98px minmax(120px, 1fr) 48px;
-  gap: 12px;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 18px;
   align-items: center;
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: inset 0 0 0 1px rgba(35, 48, 44, 0.07);
 }
 
-.dimension-row strong,
-.dimension-row span,
-.dimension-row em {
-  display: block;
+.radar-svg {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
 }
 
-.dimension-row span {
-  color: #74807d;
+.radar-grid {
+  fill: none;
+  stroke: rgba(35, 48, 44, 0.12);
+  stroke-width: 1;
+}
+
+.radar-axis {
+  fill: none;
+  stroke: rgba(35, 48, 44, 0.14);
+  stroke-width: 1;
+}
+
+.radar-shape {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.radar-dot {
+  fill: var(--accent);
+}
+
+.radar-legend {
+  display: grid;
+  gap: 8px;
+}
+
+.radar-legend-item {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 44px;
+  gap: 10px;
+  align-items: center;
+  color: #53635f;
+}
+
+.radar-legend-item strong {
+  color: #20302c;
+}
+
+.radar-legend-item span {
   font-size: 12px;
 }
 
-.dimension-row em {
-  color: #4c5d59;
+.radar-legend-item em {
+  color: var(--accent);
   font-family: "Trebuchet MS", Verdana, sans-serif;
   font-style: normal;
+  font-weight: 900;
   text-align: right;
-}
-
-.dimension-meter {
-  height: 10px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(35, 48, 44, 0.09);
-}
-
-.dimension-meter span {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
 }
 
 .export-error {
@@ -520,7 +596,7 @@ h1 {
 
 .report-block {
   padding: clamp(22px, 3vw, 34px);
-  border-radius: 8px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.78);
   box-shadow: 0 18px 46px rgba(35, 48, 44, 0.08);
 }
@@ -634,40 +710,52 @@ h1 {
 }
 
 .poster-art {
-  height: 430px;
-  margin: 34px 0 28px;
+  height: 380px;
+  margin: 30px 0 24px;
   background: var(--accent-soft);
 }
 
+.poster-game,
 .poster-name,
 .poster h3,
-.poster-en,
+.poster-archetype,
 .poster-core {
   margin: 0;
 }
 
-.poster-name {
-  color: #697873;
-  font-size: 28px;
-}
-
-.poster h3 {
-  margin-top: 4px;
-  font-size: 70px;
-  line-height: 1;
-}
-
-.poster-en {
+.poster-game {
   color: var(--accent);
   font-family: "Trebuchet MS", Verdana, sans-serif;
-  font-size: 86px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.poster-name {
+  margin-top: 8px;
+  color: #20302c;
+  font-size: 62px;
   font-weight: 900;
   line-height: 1;
 }
 
+.poster h3 {
+  margin-top: 10px;
+  color: #697873;
+  font-size: 32px;
+  line-height: 1.15;
+}
+
+.poster-archetype {
+  margin-top: 14px;
+  color: var(--accent);
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
 .poster-core {
   margin-top: 18px;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 800;
   line-height: 1.45;
 }
@@ -675,15 +763,15 @@ h1 {
 .poster-summary {
   margin: 16px 0 0;
   color: #53635f;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.45;
 }
 
 .poster-bars {
   display: grid;
-  gap: 14px;
-  margin-top: 34px;
+  gap: 12px;
+  margin-top: 26px;
   font-family: "Trebuchet MS", Verdana, sans-serif;
 }
 
@@ -695,7 +783,7 @@ h1 {
 }
 
 .poster-bars i {
-  height: 16px;
+  height: 14px;
   overflow: hidden;
   border-radius: 999px;
   background: rgba(35, 48, 44, 0.1);
@@ -706,6 +794,20 @@ h1 {
   height: 100%;
   border-radius: inherit;
   background: var(--accent);
+}
+
+@media (max-width: 1080px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy {
+    position: static;
+  }
+
+  .game-character-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {
@@ -722,7 +824,6 @@ h1 {
     display: none;
   }
 
-  .hero,
   .result-card {
     grid-template-columns: 1fr;
   }
@@ -731,17 +832,25 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .hero {
-    gap: 30px;
+  .character-showcase {
+    gap: 16px;
   }
 
-  .character-cloud {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .game-character-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .result-portrait {
     height: 420px;
     min-height: 320px;
+  }
+
+  .dimension-radar {
+    grid-template-columns: 1fr;
+  }
+
+  .radar-svg {
+    justify-self: center;
   }
 }
 
@@ -762,7 +871,8 @@ h1 {
     gap: 8px;
   }
 
-  .left-label, .right-label {
+  .left-label,
+  .right-label {
     text-align: left;
   }
 
@@ -784,15 +894,29 @@ h1 {
     flex-direction: column;
   }
 
-  .dimension-row {
-    grid-template-columns: 76px 1fr 42px;
+  .game-section {
+    padding: 12px;
+  }
+
+  .game-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .game-character-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .mini-card {
-    min-height: 156px;
+    min-height: 148px;
   }
 
   .mini-portrait {
     height: 82px;
+  }
+
+  .radar-legend-item {
+    grid-template-columns: 48px minmax(0, 1fr) 40px;
   }
 }

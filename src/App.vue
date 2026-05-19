@@ -10,13 +10,29 @@ const characterImages = import.meta.glob('./assets/characters/*.{png,jpg,jpeg,we
   import: 'default'
 })
 
+const imageMap = Object.fromEntries(
+  Object.entries(characterImages).map(([path, url]) => [decodeURIComponent(path.split('/').pop()), url])
+)
+
 const dimensions = [
-  { key: 'memory', label: '记录', description: '过去、记忆、证据' },
-  { key: 'control', label: '掌控', description: '剧本、秩序、预判' },
-  { key: 'risk', label: '冒险', description: '赌局、突破、变量' },
-  { key: 'logic', label: '理性', description: '知识、推导、诊断' },
-  { key: 'mask', label: '面具', description: '身份、表演、伪装' }
+  { key: 'bond', label: '羁绊', description: '关系、守护、归属、共情' },
+  { key: 'order', label: '秩序', description: '职责、契约、原则、掌控' },
+  { key: 'freedom', label: '自由', description: '旅行、玩心、即兴、反叛' },
+  { key: 'insight', label: '洞察', description: '知识、推理、审美、策略' },
+  { key: 'intensity', label: '锋芒', description: '风险、战斗、野心、爆发' },
+  { key: 'persona', label: '幻面', description: '身份、舞台、伪装、叙事' }
 ]
+
+const gameLabels = {
+  starrail: '崩坏：星穹铁道',
+  genshin: '原神',
+  zzz: '绝区零'
+}
+
+const dimensionWeights = Object.fromEntries(dimensions.map(({ key }) => [key, 1]))
+const radarCenter = 110
+const radarRadius = 82
+const radarGridLevels = [0.25, 0.5, 0.75, 1]
 
 const view = ref('home')
 const currentIndex = ref(0)
@@ -33,6 +49,29 @@ const answeredCount = computed(() => Object.keys(answers.value).length)
 const progress = computed(() => Math.round((answeredCount.value / questions.length) * 100))
 const isComplete = computed(() => answeredCount.value === questions.length)
 
+const groupedCharacters = computed(() => {
+  return Object.entries(gameLabels).map(([game, label]) => ({
+    game,
+    label,
+    characters: characters.filter((character) => character.game === game)
+  }))
+})
+
+const scoreRanges = computed(() => {
+  const ranges = Object.fromEntries(dimensions.map(({ key }) => [key, { min: 0, max: 0 }]))
+
+  questions.forEach((question) => {
+    dimensions.forEach(({ key }) => {
+      const left = question.leftScores?.[key] ?? 0
+      const right = question.rightScores?.[key] ?? 0
+      ranges[key].min += Math.min(left, right, 0)
+      ranges[key].max += Math.max(left, right, 0)
+    })
+  })
+
+  return ranges
+})
+
 const rawScores = computed(() => {
   const scores = Object.fromEntries(dimensions.map(({ key }) => [key, 0]))
 
@@ -43,12 +82,12 @@ const rawScores = computed(() => {
     if (value < 0) {
       const weight = Math.abs(value) / 3
       Object.entries(question.leftScores).forEach(([key, score]) => {
-        scores[key] += score * weight
+        if (key in scores) scores[key] += score * weight
       })
     } else if (value > 0) {
       const weight = value / 3
       Object.entries(question.rightScores).forEach(([key, score]) => {
-        scores[key] += score * weight
+        if (key in scores) scores[key] += score * weight
       })
     }
   })
@@ -57,18 +96,14 @@ const rawScores = computed(() => {
 })
 
 const normalizedScores = computed(() => {
-  const values = dimensions.map(({ key }) => rawScores.value[key])
-  const max = Math.max(...values)
-  const min = Math.min(...values)
-
-  if (max === min) {
-    return Object.fromEntries(dimensions.map(({ key }) => [key, 0.5]))
-  }
-
   return Object.fromEntries(
     dimensions.map(({ key }) => {
-      const normalized = (rawScores.value[key] - min) / (max - min)
-      return [key, Number(normalized.toFixed(3))]
+      const range = scoreRanges.value[key]
+      if (!range || range.max === range.min) return [key, 0.5]
+
+      const normalized = (rawScores.value[key] - range.min) / (range.max - range.min)
+      const clamped = Math.min(1, Math.max(0, normalized))
+      return [key, Number(clamped.toFixed(3))]
     })
   )
 })
@@ -79,10 +114,10 @@ const rankedCharacters = computed(() => {
       const distance = Math.sqrt(
         dimensions.reduce((sum, { key }) => {
           const diff = normalizedScores.value[key] - character.profile[key]
-          return sum + diff * diff
+          return sum + dimensionWeights[key] * diff * diff
         }, 0)
       )
-      const maxDistance = Math.sqrt(dimensions.length)
+      const maxDistance = Math.sqrt(dimensions.reduce((sum, { key }) => sum + dimensionWeights[key], 0))
       const match = Math.max(0, Math.round((1 - distance / maxDistance) * 100))
       return { ...character, distance, match }
     })
@@ -95,6 +130,49 @@ const resultThemeStyle = computed(() => ({
   '--accent': result.value.theme,
   '--accent-soft': `${result.value.theme}24`
 }))
+
+const radarPolygonPoints = computed(() => getRadarPoints(normalizedScores.value, radarRadius))
+const radarValuePoints = computed(() => getRadarPointData(normalizedScores.value, radarRadius))
+const radarGridPolygons = computed(() => radarGridLevels.map((level) => getRadarPoints(null, radarRadius * level)))
+
+const radarAxisData = computed(() => {
+  return dimensions.map((dimension, index) => {
+    const angle = getRadarAngle(index)
+    const axis = getPoint(angle, radarRadius)
+    const label = getPoint(angle, radarRadius + 24)
+    return {
+      ...dimension,
+      axis: `${radarCenter},${radarCenter} ${axis.x},${axis.y}`,
+      labelX: label.x,
+      labelY: label.y,
+      percent: getDimensionPercent(dimension.key)
+    }
+  })
+})
+
+function getRadarAngle(index) {
+  return (Math.PI * 2 * index) / dimensions.length - Math.PI / 2
+}
+
+function getPoint(angle, radius) {
+  return {
+    x: Number((radarCenter + Math.cos(angle) * radius).toFixed(2)),
+    y: Number((radarCenter + Math.sin(angle) * radius).toFixed(2))
+  }
+}
+
+function getRadarPointData(scores, radius) {
+  return dimensions.map(({ key }, index) => {
+    const value = scores?.[key] ?? 1
+    return getPoint(getRadarAngle(index), radius * value)
+  })
+}
+
+function getRadarPoints(scores, radius) {
+  return getRadarPointData(scores, radius)
+    .map((point) => `${point.x},${point.y}`)
+    .join(' ')
+}
 
 function startTest() {
   view.value = 'test'
@@ -109,14 +187,19 @@ function resetTest() {
   view.value = 'home'
 }
 
-function submitAnswer() {
-  answers.value = { ...answers.value, [currentQuestion.value.id]: currentAnswerValue.value }
+function submitAnswer(answerValue = currentAnswerValue.value) {
+  answers.value = { ...answers.value, [currentQuestion.value.id]: answerValue }
   if (currentIndex.value < questions.length - 1) {
     currentIndex.value += 1
-    currentAnswerValue.value = 0
+    currentAnswerValue.value = answers.value[questions[currentIndex.value].id] ?? 0
   } else {
     view.value = 'result'
   }
+}
+
+function selectAnswer(option) {
+  currentAnswerValue.value = option
+  submitAnswer(option)
 }
 
 function previousQuestion() {
@@ -137,9 +220,8 @@ function markImageError(id) {
 }
 
 function getImageSrc(character) {
-  const filename = character.image.split('/').pop()
-  const match = Object.entries(characterImages).find(([path]) => path.endsWith(`/${filename}`))
-  return match?.[1] ?? ''
+  const filename = character.image?.split('/').pop() || `${character.name}.png`
+  return imageMap[filename] ?? imageMap[`${character.name}.png`] ?? ''
 }
 
 function shouldShowImage(character) {
@@ -148,6 +230,10 @@ function shouldShowImage(character) {
 
 function getDimensionPercent(key) {
   return Math.round((normalizedScores.value[key] ?? 0) * 100)
+}
+
+function getGameLabel(game) {
+  return gameLabels[game] ?? game
 }
 
 async function exportPoster() {
@@ -177,7 +263,7 @@ async function exportPoster() {
       }
     })
     const link = document.createElement('a')
-    link.download = `MITI-${result.value.id}.png`
+    link.download = `MITI-${result.value.name}.png`
     link.href = dataUrl
     document.body.appendChild(link)
     link.click()
@@ -199,17 +285,18 @@ async function exportPoster() {
         <span>MITI</span>
       </button>
       <div class="nav-meta">
-        <span>纯前端测试</span>
+        <span>三游人格测试</span>
         <span>{{ characters.length }} 位角色</span>
+        <span>{{ questions.length }} 道题</span>
       </div>
     </header>
 
     <section v-if="view === 'home'" class="hero">
       <div class="hero-copy">
         <p class="eyebrow">Mihoyo Inspired Type Indicator</p>
-        <h1>测一测，你会落在哪张星际人格卡上。</h1>
+        <h1>测一测，你会与哪位角色共鸣。</h1>
         <p class="hero-text">
-          回答一组偏好题，MITI 会根据记录、掌控、冒险、理性和面具五个维度，匹配最接近你的角色画像。
+          回答一组偏好题，MITI 会根据羁绊、秩序、自由、洞察、锋芒和幻面六个维度，在星铁、原神与绝区零角色中匹配最接近你的画像。
         </p>
         <div class="hero-actions">
           <button class="primary-button" type="button" @click="startTest">开始测试</button>
@@ -217,25 +304,33 @@ async function exportPoster() {
         </div>
       </div>
 
-      <div class="character-cloud" aria-label="角色预览">
-        <article
-          v-for="character in characters"
-          :key="character.id"
-          class="mini-card"
-          :style="{ '--accent': character.theme }"
-        >
-          <div class="mini-portrait">
-            <img
-              v-if="shouldShowImage(character)"
-              :src="getImageSrc(character)"
-              :alt="character.name"
-              @error="markImageError(character.id)"
-            />
-            <span v-else>{{ character.titleEn }}</span>
+      <div class="character-showcase" aria-label="角色预览">
+        <section v-for="group in groupedCharacters" :key="group.game" class="game-section">
+          <div class="game-heading">
+            <h2>{{ group.label }}</h2>
+            <span>{{ group.characters.length }} 位角色</span>
           </div>
-          <strong>{{ character.name }}</strong>
-          <small>{{ character.titleCn }}</small>
-        </article>
+          <div class="game-character-grid">
+            <article
+              v-for="character in group.characters"
+              :key="character.id"
+              class="mini-card"
+              :style="{ '--accent': character.theme }"
+            >
+              <div class="mini-portrait">
+                <img
+                  v-if="shouldShowImage(character)"
+                  :src="getImageSrc(character)"
+                  :alt="character.name"
+                  @error="markImageError(character.id)"
+                />
+                <span v-else>{{ character.name }}</span>
+              </div>
+              <strong>{{ character.name }}</strong>
+              <small>{{ character.title }}</small>
+            </article>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -253,7 +348,7 @@ async function exportPoster() {
       <article class="question-card">
         <p class="question-kicker">选择更像你的那一边</p>
         <h2>{{ currentQuestion.text }}</h2>
-        
+
         <div class="answer-picker-wrap">
           <div class="choice-labels">
             <span class="left-label">{{ currentQuestion.leftLabel }}</span>
@@ -273,7 +368,7 @@ async function exportPoster() {
                 [`level-${Math.abs(option)}`]: true
               }"
               type="button"
-              @click="currentAnswerValue = option"
+              @click="selectAnswer(option)"
             >
               {{ option > 0 ? `+${option}` : option }}
             </button>
@@ -305,27 +400,48 @@ async function exportPoster() {
             @error="markImageError(result.id)"
           />
           <div v-else class="portrait-placeholder">
-            <span>{{ result.titleEn }}</span>
+            <span>{{ result.name }}</span>
           </div>
         </div>
 
         <div class="result-copy">
-          <p class="eyebrow">你的 MITI 结果</p>
-          <h2>{{ result.name }} · {{ result.titleCn }}</h2>
-          <p class="result-en">{{ result.titleEn }}</p>
+          <p class="eyebrow">你的 MITI 结果 · {{ result.match }}% 匹配</p>
+          <p class="result-game">{{ getGameLabel(result.game) }}</p>
+          <h2>{{ result.name }} · {{ result.title }}</h2>
+          <p class="result-archetype">{{ result.archetype }}</p>
           <p class="result-core">{{ result.core }}</p>
-          <p class="result-direction">{{ result.direction }}</p>
+          <p class="result-direction">视觉关键词：{{ result.direction }}</p>
 
-          <div class="dimension-list">
-            <div v-for="dimension in dimensions" :key="dimension.key" class="dimension-row">
-              <div>
+          <div class="dimension-radar">
+            <svg class="radar-svg" viewBox="0 0 220 220" role="img" aria-label="六维人格结果图">
+              <polygon
+                v-for="points in radarGridPolygons"
+                :key="points"
+                class="radar-grid"
+                :points="points"
+              />
+              <polyline
+                v-for="axis in radarAxisData"
+                :key="axis.key"
+                class="radar-axis"
+                :points="axis.axis"
+              />
+              <polygon class="radar-shape" :points="radarPolygonPoints" />
+              <circle
+                v-for="(point, index) in radarValuePoints"
+                :key="`${dimensions[index].key}-dot`"
+                class="radar-dot"
+                :cx="point.x"
+                :cy="point.y"
+                r="3"
+              />
+            </svg>
+            <div class="radar-legend">
+              <div v-for="dimension in radarAxisData" :key="dimension.key" class="radar-legend-item">
                 <strong>{{ dimension.label }}</strong>
                 <span>{{ dimension.description }}</span>
+                <em>{{ dimension.percent }}%</em>
               </div>
-              <div class="dimension-meter">
-                <span :style="{ width: `${getDimensionPercent(dimension.key)}%` }"></span>
-              </div>
-              <em>{{ getDimensionPercent(dimension.key) }}%</em>
             </div>
           </div>
 
@@ -349,7 +465,7 @@ async function exportPoster() {
         <div class="report-grid">
           <article class="report-block">
             <p class="section-label">相似之处</p>
-            <h3>你和 {{ result.titleCn }} 的共振点</h3>
+            <h3>你和 {{ result.title }} 的共振点</h3>
             <ul>
               <li v-for="item in result.report.similarities" :key="item">{{ item }}</li>
             </ul>
@@ -381,15 +497,15 @@ async function exportPoster() {
 
       <aside class="runner-up">
         <p>相近结果</p>
-        <span v-for="character in rankedCharacters.slice(1, 4)" :key="character.id">
-          {{ character.name }} {{ character.match }}%
+        <span v-for="character in rankedCharacters.slice(1, 5)" :key="character.id">
+          {{ character.name }} · {{ getGameLabel(character.game) }} {{ character.match }}%
         </span>
       </aside>
 
       <article ref="posterRef" class="poster" :style="resultThemeStyle" aria-hidden="true">
         <div class="poster-top">
           <span>MITI</span>
-          <strong>{{ result.match }}% MATCH</strong>
+          <strong>{{ result.match }}% 匹配</strong>
         </div>
         <div class="poster-art">
           <img
@@ -399,12 +515,13 @@ async function exportPoster() {
             @error="markImageError(result.id)"
           />
           <div v-else class="portrait-placeholder">
-            <span>{{ result.titleEn }}</span>
+            <span>{{ result.name }}</span>
           </div>
         </div>
+        <p class="poster-game">{{ getGameLabel(result.game) }}</p>
         <p class="poster-name">{{ result.name }}</p>
-        <h3>{{ result.titleCn }}</h3>
-        <p class="poster-en">{{ result.titleEn }}</p>
+        <h3>{{ result.title }}</h3>
+        <p class="poster-archetype">{{ result.archetype }}</p>
         <p class="poster-core">{{ result.core }}</p>
         <p class="poster-summary">{{ result.report.similarities[0] }}</p>
         <div class="poster-bars">

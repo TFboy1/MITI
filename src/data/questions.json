@@ -1,98 +1,210 @@
 [
   {
-    "id": "q1",
-    "text": "当一段旅程即将结束时，你更想留下些什么？",
-    "leftLabel": "把碎片都记录下来",
-    "rightLabel": "让结局自然消散",
-    "leftScores": { "memory": 2, "logic": 0.5 },
-    "rightScores": { "memory": -1, "risk": 1, "mask": 0.5 }
+    "id": "q01",
+    "text": "一段新的旅程开始前，你更先确认什么？",
+    "leftLabel": "有没有值得信任的同行者",
+    "rightLabel": "路线是否足够自由可变",
+    "leftScores": { "bond": 2, "order": 0.5, "freedom": -0.5 },
+    "rightScores": { "freedom": 2, "insight": 0.5, "order": -0.5 }
   },
   {
-    "id": "q2",
-    "text": "面对混乱局面，你第一反应更接近哪一种？",
-    "leftLabel": "先推演可控路线",
-    "rightLabel": "先冲进变量中心",
-    "leftScores": { "control": 2, "logic": 1 },
-    "rightScores": { "risk": 2, "mask": 0.5 }
+    "id": "q02",
+    "text": "当局面开始失控时，你更像哪一种？",
+    "leftLabel": "先稳住规则和责任边界",
+    "rightLabel": "先抓住变化里的突破口",
+    "leftScores": { "order": 2, "insight": 0.8, "intensity": -0.4 },
+    "rightScores": { "intensity": 1.6, "freedom": 1, "order": -0.5 }
   },
   {
-    "id": "q3",
-    "text": "如果人生像游戏，你更享受哪种时刻？",
-    "leftLabel": "找到系统漏洞",
-    "rightLabel": "押上筹码翻盘",
-    "leftScores": { "logic": 1.5, "control": 0.5, "risk": 0.5 },
-    "rightScores": { "risk": 2, "mask": 0.5 }
+    "id": "q03",
+    "text": "你更愿意用哪种方式保护重要的人？",
+    "leftLabel": "留在身边，认真照顾他们的感受",
+    "rightLabel": "站到前方，把危险和压力挡下",
+    "leftScores": { "bond": 2, "insight": 0.4, "intensity": -0.3 },
+    "rightScores": { "intensity": 1.7, "order": 0.8, "bond": 0.5 }
   },
   {
-    "id": "q4",
-    "text": "别人评价你时，哪句话更容易说中你？",
-    "leftLabel": "看起来随意，其实心里有棋盘",
-    "rightLabel": "看起来轻松，其实藏着很多层身份",
-    "leftScores": { "control": 2, "logic": 1 },
-    "rightScores": { "mask": 2, "risk": 0.5 }
+    "id": "q04",
+    "text": "如果必须戴上一张面具，你会把它用来做什么？",
+    "leftLabel": "保护真实的自己和脆弱关系",
+    "rightLabel": "掌控舞台，让局势按节奏推进",
+    "leftScores": { "persona": 1.2, "bond": 1.2, "order": 0.3 },
+    "rightScores": { "persona": 2, "insight": 0.8, "bond": -0.4 }
   },
   {
-    "id": "q5",
-    "text": "你更害怕哪一种空白？",
-    "leftLabel": "失去曾经是谁的证据",
-    "rightLabel": "看不见下一步的可能",
-    "leftScores": { "memory": 2, "control": 0.5 },
-    "rightScores": { "risk": 1.5, "logic": 0.5 }
+    "id": "q05",
+    "text": "面对一条古老规则，你更容易产生哪种反应？",
+    "leftLabel": "理解它为何存在，再决定是否遵守",
+    "rightLabel": "如果它挡住可能性，就寻找改写方法",
+    "leftScores": { "order": 1.6, "insight": 1, "freedom": -0.4 },
+    "rightScores": { "freedom": 1.5, "insight": 0.8, "intensity": 0.7 }
   },
   {
-    "id": "q6",
-    "text": "当规则挡住目标时，你更可能怎么做？",
-    "leftLabel": "读懂规则再改写它",
-    "rightLabel": "戴上新面具绕过去",
-    "leftScores": { "logic": 2, "control": 1 },
-    "rightScores": { "mask": 2, "risk": 1 }
+    "id": "q06",
+    "text": "别人最容易低估你的哪一面？",
+    "leftLabel": "看似温和，其实很能坚持",
+    "rightLabel": "看似随意，其实看得很深",
+    "leftScores": { "bond": 1, "order": 0.8, "intensity": 0.7 },
+    "rightScores": { "insight": 1.5, "persona": 0.8, "freedom": 0.5 }
   },
   {
-    "id": "q7",
-    "text": "你对“命运剧本”的态度更像？",
-    "leftLabel": "剧本存在，就找到最优演法",
-    "rightLabel": "剧本存在，就把舞台掀起来",
-    "leftScores": { "control": 2, "mask": 0.5 },
-    "rightScores": { "risk": 2, "mask": 1 }
+    "id": "q07",
+    "text": "如果一件事注定会带来代价，你更在意什么？",
+    "leftLabel": "代价是否值得，以及谁会被伤到",
+    "rightLabel": "机会是否短暂，不抓住就会失去",
+    "leftScores": { "bond": 1.4, "insight": 1, "order": 0.5 },
+    "rightScores": { "intensity": 1.8, "freedom": 0.8, "order": -0.3 }
   },
   {
-    "id": "q8",
-    "text": "面对旧伤或旧事，你通常会？",
-    "leftLabel": "反复回看，直到理解它",
-    "rightLabel": "把它烧成继续前进的燃料",
-    "leftScores": { "memory": 2, "logic": 0.5 },
-    "rightScores": { "risk": 1.5, "control": 0.5 }
+    "id": "q08",
+    "text": "你更喜欢哪一种胜利？",
+    "leftLabel": "长期布局后，让一切自然落位",
+    "rightLabel": "临场爆发，把不可能扳回来",
+    "leftScores": { "order": 1.7, "insight": 1.1, "intensity": -0.3 },
+    "rightScores": { "intensity": 2, "freedom": 0.6, "persona": 0.4 }
   },
   {
-    "id": "q9",
-    "text": "你更喜欢成为团队中的哪种力量？",
-    "leftLabel": "冷静诊断问题的人",
-    "rightLabel": "让气氛变得不可预测的人",
-    "leftScores": { "logic": 2, "control": 0.5 },
-    "rightScores": { "mask": 2, "risk": 1 }
+    "id": "q09",
+    "text": "当你被误解时，你更倾向于？",
+    "leftLabel": "把事实和逻辑解释清楚",
+    "rightLabel": "保留误解，让它成为保护色",
+    "leftScores": { "insight": 1.7, "order": 0.8, "persona": -0.3 },
+    "rightScores": { "persona": 1.8, "intensity": 0.4, "bond": -0.2 }
   },
   {
     "id": "q10",
-    "text": "如果只能带一个象征物上路，你会选？",
-    "leftLabel": "相机、笔记或旧票根",
-    "rightLabel": "骰子、面具或未署名剧本",
-    "leftScores": { "memory": 2, "logic": 0.5 },
-    "rightScores": { "risk": 1, "mask": 1.5, "control": 0.5 }
+    "text": "你对“被期待”这件事更接近哪种感受？",
+    "leftLabel": "它让我想把责任做好",
+    "rightLabel": "它让我想证明舞台上的我不止一种",
+    "leftScores": { "order": 1.6, "bond": 0.8, "freedom": -0.3 },
+    "rightScores": { "persona": 1.7, "freedom": 0.8, "insight": 0.4 }
   },
   {
     "id": "q11",
-    "text": "当你被误解时，你更倾向于？",
-    "leftLabel": "拿事实和逻辑解释清楚",
-    "rightLabel": "保留误解，让它成为保护色",
-    "leftScores": { "logic": 2, "control": 0.5 },
-    "rightScores": { "mask": 2, "memory": 0.5 }
+    "text": "你更容易被哪种人吸引？",
+    "leftLabel": "稳定可靠、承诺有重量的人",
+    "rightLabel": "有趣难猜、永远带来变量的人",
+    "leftScores": { "bond": 1.2, "order": 1.3, "persona": -0.3 },
+    "rightScores": { "freedom": 1.3, "persona": 1.3, "intensity": 0.5 }
   },
   {
     "id": "q12",
-    "text": "你更相信哪种胜利？",
-    "leftLabel": "提前布好的全局预判",
-    "rightLabel": "临场下注后的漂亮逆转",
-    "leftScores": { "control": 2, "logic": 1 },
-    "rightScores": { "risk": 2, "mask": 0.5 }
+    "text": "面对伤痛或失去，你通常会？",
+    "leftLabel": "慢慢理解它，给它一个位置",
+    "rightLabel": "把它变成继续前进的燃料",
+    "leftScores": { "bond": 1.2, "insight": 1.1, "intensity": -0.2 },
+    "rightScores": { "intensity": 1.8, "order": 0.4, "persona": 0.4 }
+  },
+  {
+    "id": "q13",
+    "text": "如果你负责一个团队，你更先建立什么？",
+    "leftLabel": "清晰分工、规则和底线",
+    "rightLabel": "信任气氛、士气和归属感",
+    "leftScores": { "order": 1.8, "insight": 0.7, "bond": -0.2 },
+    "rightScores": { "bond": 1.8, "freedom": 0.5, "order": 0.2 }
+  },
+  {
+    "id": "q14",
+    "text": "你处理复杂问题时更像？",
+    "leftLabel": "拆开结构，找到最关键的机制",
+    "rightLabel": "先动起来，在反馈中调整路线",
+    "leftScores": { "insight": 2, "order": 0.7, "freedom": -0.4 },
+    "rightScores": { "freedom": 1.4, "intensity": 1, "insight": 0.3 }
+  },
+  {
+    "id": "q15",
+    "text": "如果必须在聚光灯下承担角色，你更希望？",
+    "leftLabel": "让所有人安心，相信我能撑住",
+    "rightLabel": "让大家看见真实的我，而不只是角色",
+    "leftScores": { "order": 1.1, "persona": 1, "bond": 0.6 },
+    "rightScores": { "bond": 1.3, "persona": 1.2, "freedom": 0.6 }
+  },
+  {
+    "id": "q16",
+    "text": "面对危险机会，你的第一判断更像？",
+    "leftLabel": "风险可以接受，但必须算清筹码",
+    "rightLabel": "直觉告诉我该冲，就不能错过窗口",
+    "leftScores": { "insight": 1.3, "intensity": 1.1, "order": 0.5 },
+    "rightScores": { "intensity": 1.8, "freedom": 1, "order": -0.4 }
+  },
+  {
+    "id": "q17",
+    "text": "你更害怕哪一种状态？",
+    "leftLabel": "重要的人逐渐离我很远",
+    "rightLabel": "自己被固定成唯一一种样子",
+    "leftScores": { "bond": 1.8, "persona": 0.3, "freedom": -0.2 },
+    "rightScores": { "freedom": 1.4, "persona": 1.2, "order": -0.4 }
+  },
+  {
+    "id": "q18",
+    "text": "你更认可哪种正义？",
+    "leftLabel": "原则必须清晰，否则迟早失控",
+    "rightLabel": "原则要看见人，否则只是冰冷制度",
+    "leftScores": { "order": 2, "insight": 0.6, "bond": -0.2 },
+    "rightScores": { "bond": 1.4, "insight": 1, "order": 0.4 }
+  },
+  {
+    "id": "q19",
+    "text": "当生活变得无聊重复时，你更可能？",
+    "leftLabel": "找到值得研究的细节，让它变有趣",
+    "rightLabel": "制造一点变化，打破原本节奏",
+    "leftScores": { "insight": 1.7, "order": 0.3, "freedom": 0.4 },
+    "rightScores": { "freedom": 1.7, "persona": 0.8, "intensity": 0.5 }
+  },
+  {
+    "id": "q20",
+    "text": "你表达关心时更常用哪种方式？",
+    "leftLabel": "陪着对方，把情绪接住",
+    "rightLabel": "指出问题，帮对方找到解法",
+    "leftScores": { "bond": 2, "insight": 0.3, "order": -0.2 },
+    "rightScores": { "insight": 1.6, "order": 0.8, "bond": -0.2 }
+  },
+  {
+    "id": "q21",
+    "text": "如果要在城市缝隙里求生，你更依靠？",
+    "leftLabel": "人脉、机灵和随机应变",
+    "rightLabel": "纪律、训练和稳定执行",
+    "leftScores": { "freedom": 1.5, "persona": 1, "insight": 0.6 },
+    "rightScores": { "order": 1.6, "intensity": 1.1, "freedom": -0.3 }
+  },
+  {
+    "id": "q22",
+    "text": "当别人需要你带头时，你更像？",
+    "leftLabel": "点燃士气，一起往前冲",
+    "rightLabel": "先稳住阵型，保证所有人不掉队",
+    "leftScores": { "intensity": 1.5, "bond": 0.9, "freedom": 0.5 },
+    "rightScores": { "order": 1.5, "bond": 0.9, "insight": 0.5 }
+  },
+  {
+    "id": "q23",
+    "text": "你面对“告别”时更接近哪种态度？",
+    "leftLabel": "认真完成仪式，让它有被记住的方式",
+    "rightLabel": "让它轻一点，别让沉重吞掉生活",
+    "leftScores": { "bond": 1.4, "order": 0.8, "insight": 0.6 },
+    "rightScores": { "freedom": 1.1, "persona": 0.9, "bond": 0.4 }
+  },
+  {
+    "id": "q24",
+    "text": "如果只能保留一种核心力量，你会选？",
+    "leftLabel": "无论环境多复杂，都能看清真相",
+    "rightLabel": "无论局面多危险，都敢真正行动",
+    "leftScores": { "insight": 2, "order": 0.4, "intensity": -0.2 },
+    "rightScores": { "intensity": 2, "freedom": 0.4, "insight": -0.2 }
+  },
+  {
+    "id": "q25",
+    "text": "你希望别人记住你的哪一点？",
+    "leftLabel": "我曾真诚地陪伴和守护过他们",
+    "rightLabel": "我曾把不可能变成可能",
+    "leftScores": { "bond": 1.8, "order": 0.4, "persona": -0.2 },
+    "rightScores": { "intensity": 1.4, "freedom": 1, "persona": 0.5 }
+  },
+  {
+    "id": "q26",
+    "text": "当你终于可以卸下身份时，你最想做什么？",
+    "leftLabel": "安静待在可信的人身边",
+    "rightLabel": "去没有剧本的地方重新开始",
+    "leftScores": { "bond": 1.6, "order": 0.3, "persona": -0.3 },
+    "rightScores": { "freedom": 1.7, "persona": 0.6, "insight": 0.4 }
   }
 ]
