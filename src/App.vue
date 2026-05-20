@@ -30,8 +30,8 @@ const gameLabels = {
 }
 
 const dimensionWeights = Object.fromEntries(dimensions.map(({ key }) => [key, 1]))
-const radarCenter = 110
-const radarRadius = 82
+const radarCenter = 130
+const radarRadius = 86
 const radarGridLevels = [0.25, 0.5, 0.75, 1]
 
 const view = ref('home')
@@ -413,7 +413,7 @@ async function exportPoster() {
           <p class="result-direction">视觉关键词：{{ result.direction }}</p>
 
           <div class="dimension-radar">
-            <svg class="radar-svg" viewBox="0 0 220 220" role="img" aria-label="六维人格结果图">
+            <svg class="radar-svg" viewBox="0 0 260 260" role="img" aria-label="六维人格结果图">
               <polygon
                 v-for="points in radarGridPolygons"
                 :key="points"

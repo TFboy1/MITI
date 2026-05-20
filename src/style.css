@@ -509,7 +509,7 @@ h1 {
 
 .dimension-radar {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 18px;
   align-items: center;
   margin-top: 24px;
@@ -521,7 +521,7 @@ h1 {
 
 .radar-svg {
   width: 100%;
-  max-width: 240px;
+  max-width: 260px;
   height: auto;
 }
 
