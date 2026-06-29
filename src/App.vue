@@ -56,7 +56,7 @@ const slides = [
     name: '温迪',
     theme: '#48b89a',
     image: imgVenti,
-    text: 'MITI\n三游人格测试',
+    text: 'MITI\n米哈游人格测试',
     subtitle: 'Mihoyo Inspired Type Indicator'
   },
   {
@@ -64,7 +64,7 @@ const slides = [
     name: '钟离',
     theme: '#b98a3b',
     image: imgZhongli,
-    text: '六大核心维度\n深度分析性格',
+    text: '五大灵魂维度\n测定你的人格图谱',
     subtitle: '专业分析维度'
   },
   {
@@ -72,15 +72,15 @@ const slides = [
     name: '雷电将军',
     theme: '#8b63c7',
     image: imgRaiden,
-    text: '跨越三大宇宙\n寻找心灵共振',
-    subtitle: '原神・星铁・绝区零'
+    text: '原神・星铁・绝区零\n百位人气角色映射',
+    subtitle: '三游宇宙联动'
   },
   {
     index: 3,
     name: '纳西妲',
     theme: '#7fbd66',
     image: imgNahida,
-    text: '欧氏距离算法\n科学寻找投影',
+    text: '高精距离算法\n科学匹配本命投影',
     subtitle: '契合匹配机制'
   },
   {
@@ -88,7 +88,7 @@ const slides = [
     name: '芙宁娜',
     theme: '#4f9edc',
     image: imgFurina,
-    text: '精美结果报告\n雷达图与海报',
+    text: '生成专属海报\n晒出你的异界身份',
     subtitle: '结果分析与导出'
   },
   {
@@ -96,7 +96,7 @@ const slides = [
     name: '可莉',
     theme: '#e85a4f',
     image: imgKlee,
-    text: '开启你的测试\n共鸣就此开始',
+    text: '引爆冒险火花\n即刻启程测试',
     subtitle: '立即出发',
     isFinal: true
   }
