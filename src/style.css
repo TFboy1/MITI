@@ -927,3 +927,318 @@ h1 {
     grid-template-columns: 48px minmax(0, 1fr) 40px;
   }
 }
+
+/* ==========================================
+   WebGL 3D Particle & Scroll Snap Slides Styles
+   ========================================== */
+
+/* WebGL canvas container */
+#webgl-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none; /* Let mouse scroll/wheel pass to container */
+  transition: opacity 1s ease;
+}
+
+/* Home wrapper for the 3D Slideshow */
+.home-slides-wrapper {
+  background: #080a0f;
+  color: #f1f5f9;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Fixed header overlay for slides */
+.fixed-topbar {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1240px, calc(100% - 36px));
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 26px 0;
+  pointer-events: none;
+}
+
+.fixed-topbar * {
+  pointer-events: auto;
+}
+
+.fixed-topbar .brand {
+  color: #ffffff;
+}
+
+.fixed-topbar .nav-meta {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.fixed-topbar .brand-mark {
+  background: #2f8a7f;
+  box-shadow: 0 0 15px rgba(47, 138, 127, 0.6);
+}
+
+/* Fullscreen Scroll Snap Container */
+.slides-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  position: relative;
+  z-index: 1;
+}
+
+.slides-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Slide Section */
+.slide-section {
+  scroll-snap-align: start;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  padding: 80px 40px;
+}
+
+/* Content wrapper inside slides */
+.slide-content {
+  max-width: 800px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.slide-content * {
+  pointer-events: auto;
+}
+
+.slide-section.active .slide-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Typographic hierarchy for slide text */
+.slide-subtitle {
+  font-family: "Trebuchet MS", sans-serif;
+  color: var(--accent, #2f8a7f);
+  font-size: clamp(12px, 1.8vw, 15px);
+  font-weight: 900;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  transition: color 0.5s ease;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.slide-title {
+  font-size: clamp(28px, 4.5vw, 56px);
+  font-weight: 900;
+  line-height: 1.2;
+  color: #ffffff;
+  margin: 0 0 20px;
+  font-family: "Noto Serif SC", "Source Han Serif SC", serif;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.slide-desc {
+  font-size: clamp(15px, 2.2vw, 19px);
+  line-height: 1.8;
+  color: #cbd5e1;
+  margin: 0 auto;
+  max-width: 620px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+/* Buttons inside slides */
+.slide-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.slide-actions .primary-button {
+  background: var(--accent, #2f8a7f);
+  box-shadow: 0 10px 25px var(--accent-soft, rgba(47, 138, 127, 0.4));
+}
+
+.slide-actions .ghost-button {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.slide-actions .ghost-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Lateral pagination dots */
+.slide-nav {
+  position: fixed;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.slide-nav-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-nav-dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(1.2);
+}
+
+.slide-nav-dot.active {
+  background: var(--accent, #2f8a7f);
+  transform: scale(1.4);
+  box-shadow: 0 0 10px var(--accent, #2f8a7f);
+}
+
+/* Scroll Hint (Arrow pointing down) */
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.5s ease, color 0.3s ease;
+}
+
+.scroll-hint:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.scroll-hint::after {
+  content: "↓";
+  font-size: 18px;
+  font-weight: bold;
+  animation: bounceHint 2s infinite;
+}
+
+@keyframes bounceHint {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+/* App shell layouts for test/result pages */
+.app-shell.test-mode,
+.app-shell.result-mode {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 26px 40px 42px;
+  background:
+    radial-gradient(circle at top left, rgba(65, 149, 135, 0.16), transparent 32rem),
+    linear-gradient(135deg, #f8f2e8 0%, #eef4ef 48%, #f3ede4 100%);
+  color: #24302f;
+  transition: background 0.5s ease;
+}
+
+.app-shell.test-mode .topbar,
+.app-shell.result-mode .topbar {
+  max-width: 1240px;
+  margin: 0 auto 46px;
+  width: 100%;
+}
+
+.app-shell.test-mode .test-stage,
+.app-shell.result-mode .result-card,
+.app-shell.result-mode .report-section,
+.app-shell.result-mode .runner-up {
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Adjustments for test view background */
+.test-stage .question-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .app-shell.test-mode,
+  .app-shell.result-mode {
+    padding: 18px 16px 36px;
+  }
+  
+  .slide-nav {
+    right: 20px;
+  }
+}
+
+/* Loader Styles */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #080a0f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  color: #ffffff;
+  font-family: "Noto Serif SC", "Source Han Serif SC", serif;
+}
+
+.loader-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: #2f8a7f;
+  animation: spin 1s linear infinite;
+  margin-bottom: 24px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+

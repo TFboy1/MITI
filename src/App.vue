@@ -1,8 +1,18 @@
 <script setup>
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, onMounted, onUnmounted, watch } from 'vue'
 import { toPng } from 'html-to-image'
+import * as THREE from 'three'
 import characters from './data/characters.json'
 import questions from './data/questions.json'
+import { sampleCombinedState } from './utils/particleSampler.js'
+
+// Import slideshow JPGs from frontend_imgs
+import imgVenti from './assets/frontend_imgs/温迪.jpg'
+import imgZhongli from './assets/frontend_imgs/钟离.jpg'
+import imgRaiden from './assets/frontend_imgs/雷电将军.jpg'
+import imgNahida from './assets/frontend_imgs/纳西妲.jpg'
+import imgFurina from './assets/frontend_imgs/芙宁娜.jpg'
+import imgKlee from './assets/frontend_imgs/可莉.jpg'
 
 const characterImages = import.meta.glob('./assets/characters/*.{png,jpg,jpeg,webp,avif,svg}', {
   eager: true,
@@ -34,6 +44,74 @@ const radarCenter = 130
 const radarRadius = 86
 const radarGridLevels = [0.25, 0.5, 0.75, 1]
 
+// 3D Particles Settings
+const PARTICLE_COUNT = 15000;
+const isLoading = ref(true);
+const currentActiveSlide = ref(0);
+const scrollContainerRef = ref(null);
+
+const slides = [
+  {
+    index: 0,
+    name: '温迪',
+    theme: '#48b89a',
+    image: imgVenti,
+    text: 'MITI\n三游人格测试',
+    subtitle: 'Mihoyo Inspired Type Indicator'
+  },
+  {
+    index: 1,
+    name: '钟离',
+    theme: '#b98a3b',
+    image: imgZhongli,
+    text: '六大核心维度\n深度分析性格',
+    subtitle: '专业分析维度'
+  },
+  {
+    index: 2,
+    name: '雷电将军',
+    theme: '#8b63c7',
+    image: imgRaiden,
+    text: '跨越三大宇宙\n寻找心灵共振',
+    subtitle: '原神・星铁・绝区零'
+  },
+  {
+    index: 3,
+    name: '纳西妲',
+    theme: '#7fbd66',
+    image: imgNahida,
+    text: '欧氏距离算法\n科学寻找投影',
+    subtitle: '契合匹配机制'
+  },
+  {
+    index: 4,
+    name: '芙宁娜',
+    theme: '#4f9edc',
+    image: imgFurina,
+    text: '精美结果报告\n雷达图与海报',
+    subtitle: '结果分析与导出'
+  },
+  {
+    index: 5,
+    name: '可莉',
+    theme: '#e85a4f',
+    image: imgKlee,
+    text: '开启你的测试\n共鸣就此开始',
+    subtitle: '立即出发',
+    isFinal: true
+  }
+]
+
+const activeSlideThemeStyle = computed(() => {
+  const slide = slides[currentActiveSlide.value]
+  if (!slide) return {}
+  return {
+    '--accent': slide.theme,
+    '--accent-soft': `${slide.theme}24`
+  }
+})
+
+// Core test states
 const view = ref('home')
 const currentIndex = ref(0)
 const answers = ref({})
@@ -185,6 +263,11 @@ function resetTest() {
   currentIndex.value = 0
   currentAnswerValue.value = 0
   view.value = 'home'
+  
+  // Wait for the slide container to mount before resetting scroll position
+  nextTick(() => {
+    scrollToSlide(0)
+  })
 }
 
 function submitAnswer(answerValue = currentAnswerValue.value) {
@@ -236,6 +319,278 @@ function getGameLabel(game) {
   return gameLabels[game] ?? game
 }
 
+// Fullscreen slideshow navigation
+const scrollToSlide = (index) => {
+  if (!scrollContainerRef.value) return
+  const height = scrollContainerRef.value.clientHeight
+  scrollContainerRef.value.scrollTo({
+    top: index * height,
+    behavior: 'smooth'
+  })
+}
+
+const onScroll = (e) => {
+  const scrollTop = e.target.scrollTop
+  const height = e.target.clientHeight
+  if (height === 0) return
+  const index = Math.round(scrollTop / height)
+  if (index !== currentActiveSlide.value && index >= 0 && index < slides.length) {
+    triggerTransition(index)
+  }
+}
+
+// Three.js 3D Particles Implementation
+let scene, camera, renderer, geometry, material, pointsMesh
+let transitionAnimationFrameId = null
+let renderLoopId = null
+const preloadedStates = []
+
+let mouseX = 0
+let mouseY = 0
+const onMouseMove = (e) => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2
+}
+
+const onResize = () => {
+  if (!camera || !renderer) return
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(window.innerWidth, window.innerHeight)
+}
+
+const triggerTransition = (newIndex) => {
+  if (newIndex === currentActiveSlide.value || preloadedStates.length === 0) return
+  
+  // Calculate current interpolated coordinates if mid-transition
+  const currentTransition = material.uniforms.uTransition.value
+  if (currentTransition > 0 && currentTransition < 1) {
+    const posAttr = geometry.attributes.position
+    const targetPosAttr = geometry.attributes.aTargetPosition
+    const colAttr = geometry.attributes.aSourceColor
+    const targetColAttr = geometry.attributes.aTargetColor
+    
+    const tempPositions = new Float32Array(PARTICLE_COUNT * 3)
+    const tempColors = new Float32Array(PARTICLE_COUNT * 3)
+    
+    const t = currentTransition
+    const easedT = t * t * (3.0 - 2.0 * t) // smoothstep
+    
+    for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
+      tempPositions[i] = posAttr.array[i] * (1 - easedT) + targetPosAttr.array[i] * easedT
+      tempColors[i] = colAttr.array[i] * (1 - easedT) + targetColAttr.array[i] * easedT
+    }
+    
+    posAttr.copyArray(tempPositions)
+    colAttr.copyArray(tempColors)
+  } else {
+    // Start morph from clean copy of last state
+    const lastState = preloadedStates[currentActiveSlide.value]
+    if (lastState) {
+      geometry.attributes.position.copyArray(lastState.positions)
+      geometry.attributes.aSourceColor.copyArray(lastState.colors)
+    }
+  }
+  
+  // Load target state data
+  const targetState = preloadedStates[newIndex]
+  if (!targetState) return
+  geometry.attributes.aTargetPosition.copyArray(targetState.positions)
+  geometry.attributes.aTargetColor.copyArray(targetState.colors)
+  
+  geometry.attributes.position.needsUpdate = true
+  geometry.attributes.aSourceColor.needsUpdate = true
+  geometry.attributes.aTargetPosition.needsUpdate = true
+  geometry.attributes.aTargetColor.needsUpdate = true
+  
+  material.uniforms.uTransition.value = 0.0
+  currentActiveSlide.value = newIndex
+  
+  // Animate uTransition progress from 0.0 to 1.0
+  if (transitionAnimationFrameId) cancelAnimationFrame(transitionAnimationFrameId)
+  
+  const duration = 1400 // Smooth cinematic transition time
+  const startTime = performance.now()
+  
+  const animateTransition = (time) => {
+    const elapsed = time - startTime
+    const progress = Math.min(elapsed / duration, 1.0)
+    
+    material.uniforms.uTransition.value = progress
+    
+    if (progress < 1.0) {
+      transitionAnimationFrameId = requestAnimationFrame(animateTransition)
+    } else {
+      // Done, finalize source data to target data to prevent drifts
+      geometry.attributes.position.copyArray(targetState.positions)
+      geometry.attributes.aSourceColor.copyArray(targetState.colors)
+      geometry.attributes.position.needsUpdate = true
+      geometry.attributes.aSourceColor.needsUpdate = true
+      material.uniforms.uTransition.value = 0.0
+    }
+  }
+  transitionAnimationFrameId = requestAnimationFrame(animateTransition)
+}
+
+const initWebGL = async () => {
+  try {
+    // 1. Asynchronously load all 3D particle positions/colors
+    for (const slide of slides) {
+      const state = await sampleCombinedState(slide.image, slide.text, PARTICLE_COUNT, slide.theme, 8000)
+      preloadedStates.push(state)
+    }
+    
+    isLoading.value = false
+    await nextTick()
+    
+    const canvas = document.getElementById('webgl-canvas')
+    if (!canvas) return
+    
+    scene = new THREE.Scene()
+    
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000)
+    camera.position.z = 150
+    
+    renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true,
+      alpha: true
+    })
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    
+    // Geometry with state 0
+    const initialState = preloadedStates[0]
+    geometry = new THREE.BufferGeometry()
+    
+    const posArray = new Float32Array(initialState.positions)
+    const colArray = new Float32Array(initialState.colors)
+    const targetPosArray = new Float32Array(initialState.positions)
+    const targetColArray = new Float32Array(initialState.colors)
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
+    geometry.setAttribute('aSourceColor', new THREE.BufferAttribute(colArray, 3))
+    geometry.setAttribute('aTargetPosition', new THREE.BufferAttribute(targetPosArray, 3))
+    geometry.setAttribute('aTargetColor', new THREE.BufferAttribute(targetColArray, 3))
+    
+    // WebGL Material using highly optimized and aesthetically pleasing Vertex Shaders
+    material = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+      uniforms: {
+        uTransition: { value: 0.0 },
+        uTime: { value: 0.0 }
+      },
+      vertexShader: `
+        uniform float uTransition;
+        uniform float uTime;
+        attribute vec3 aSourceColor;
+        attribute vec3 aTargetPosition;
+        attribute vec3 aTargetColor;
+        varying vec3 vColor;
+        
+        float random(vec2 st) {
+            return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+        }
+        
+        void main() {
+            // Cubic smooth transition
+            float t = uTransition * uTransition * (3.0 - 2.0 * uTransition);
+            
+            vec3 currentPos = mix(position, aTargetPosition, t);
+            
+            // Subtly wave the heightmap surface for floating animation
+            float wave = sin(currentPos.x * 0.045 + uTime * 1.6) * cos(currentPos.y * 0.045 + uTime * 1.3);
+            currentPos.z += wave * 3.5;
+            
+            // Particle cloud turbulence explosion in the middle of transition
+            float transitionFactor = sin(t * 3.14159265);
+            float r1 = random(currentPos.xy);
+            float r2 = random(currentPos.yz);
+            float r3 = random(currentPos.xz);
+            vec3 noiseVec = vec3(r1 - 0.5, r2 - 0.5, r3 - 0.5) * 20.0 * transitionFactor;
+            currentPos += noiseVec;
+            
+            vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
+            gl_Position = projectionMatrix * mvPosition;
+            
+            // Size based on depth plus breathing animation
+            float sizeBreathing = 1.0 + 0.15 * sin(uTime * 2.0 + position.x * 0.15);
+            gl_PointSize = (450.0 / -mvPosition.z) * sizeBreathing;
+            
+            vColor = mix(aSourceColor, aTargetColor, t);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main() {
+            float dist = distance(gl_PointCoord, vec2(0.5));
+            if (dist > 0.5) {
+                discard;
+            }
+            float alpha = smoothstep(0.5, 0.35, dist);
+            gl_FragColor = vec4(vColor, alpha * 0.85);
+        }
+      `
+    })
+    
+    pointsMesh = new THREE.Points(geometry, material)
+    scene.add(pointsMesh)
+    
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('resize', onResize)
+    
+    const clock = new THREE.Clock()
+    const tick = () => {
+      if (view.value === 'home' && renderer && scene && camera) {
+        const time = clock.getElapsedTime()
+        material.uniforms.uTime.value = time
+        
+        // Follow mouse movement smoothly for parallax tilt
+        const targetRotY = Math.sin(time * 0.12) * 0.12 + mouseX * 0.22
+        const targetRotX = Math.cos(time * 0.08) * 0.06 + mouseY * 0.12
+        
+        pointsMesh.rotation.y += (targetRotY - pointsMesh.rotation.y) * 0.05
+        pointsMesh.rotation.x += (targetRotX - pointsMesh.rotation.x) * 0.05
+        
+        renderer.render(scene, camera)
+      }
+      renderLoopId = requestAnimationFrame(tick)
+    }
+    tick()
+  } catch (error) {
+    console.error('Failed to load WebGL scene:', error)
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  initWebGL()
+})
+
+onUnmounted(() => {
+  if (transitionAnimationFrameId) cancelAnimationFrame(transitionAnimationFrameId)
+  if (renderLoopId) cancelAnimationFrame(renderLoopId)
+  window.removeEventListener('mousemove', onMouseMove)
+  window.removeEventListener('resize', onResize)
+  
+  if (geometry) geometry.dispose()
+  if (material) material.dispose()
+  if (renderer) renderer.dispose()
+})
+
+// Control WebGL canvas visibility when entering test states
+watch(view, (newView) => {
+  const canvas = document.getElementById('webgl-canvas')
+  if (!canvas) return
+  if (newView === 'home') {
+    canvas.style.display = 'block'
+  } else {
+    canvas.style.display = 'none'
+  }
+})
+
 async function exportPoster() {
   if (!posterRef.value || isExporting.value) return
   isExporting.value = true
@@ -278,9 +633,20 @@ async function exportPoster() {
 </script>
 
 <template>
-  <main class="app-shell">
-    <header class="topbar">
-      <button class="brand" type="button" @click="view = 'home'">
+  <!-- HOME VIEW (WebGL 3D Slideshow) -->
+  <div v-if="view === 'home'" class="home-slides-wrapper" :style="activeSlideThemeStyle">
+    <!-- WebGL Canvas Background -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Loading Screen -->
+    <div v-if="isLoading" class="loader-overlay">
+      <div class="loader-spinner"></div>
+      <p>正在加载 3D 粒子系统...</p>
+    </div>
+
+    <!-- Fixed Header Overlay -->
+    <header class="fixed-topbar">
+      <button class="brand" type="button" @click="scrollToSlide(0)">
         <span class="brand-mark">M</span>
         <span>MITI</span>
       </button>
@@ -291,50 +657,59 @@ async function exportPoster() {
       </div>
     </header>
 
-    <section v-if="view === 'home'" class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Mihoyo Inspired Type Indicator</p>
-        <h1>测一测，你会与哪位角色共鸣。</h1>
-        <p class="hero-text">
-          回答一组偏好题，MITI 会根据羁绊、秩序、自由、洞察、锋芒和幻面六个维度，在星铁、原神与绝区零角色中匹配最接近你的画像。
-        </p>
-        <div class="hero-actions">
-          <button class="primary-button" type="button" @click="startTest">开始测试</button>
-          <button v-if="isComplete" class="ghost-button" type="button" @click="showResultIfReady">查看上次结果</button>
+    <!-- Slides Container -->
+    <div ref="scrollContainerRef" class="slides-container" @scroll="onScroll">
+      <section
+        v-for="(slide, idx) in slides"
+        :key="idx"
+        class="slide-section"
+        :class="{ active: currentActiveSlide === idx }"
+      >
+        <div class="slide-content">
+          <!-- CTA buttons on final slide -->
+          <div v-if="slide.isFinal" class="slide-actions">
+            <button class="primary-button" type="button" @click="startTest">开始测试</button>
+            <button v-if="isComplete" class="ghost-button" type="button" @click="showResultIfReady">查看上次结果</button>
+          </div>
         </div>
-      </div>
 
-      <div class="character-showcase" aria-label="角色预览">
-        <section v-for="group in groupedCharacters" :key="group.game" class="game-section">
-          <div class="game-heading">
-            <h2>{{ group.label }}</h2>
-            <span>{{ group.characters.length }} 位角色</span>
-          </div>
-          <div class="game-character-grid">
-            <article
-              v-for="character in group.characters"
-              :key="character.id"
-              class="mini-card"
-              :style="{ '--accent': character.theme }"
-            >
-              <div class="mini-portrait">
-                <img
-                  v-if="shouldShowImage(character)"
-                  :src="getImageSrc(character)"
-                  :alt="character.name"
-                  @error="markImageError(character.id)"
-                />
-                <span v-else>{{ character.name }}</span>
-              </div>
-              <strong>{{ character.name }}</strong>
-              <small>{{ character.title }}</small>
-            </article>
-          </div>
-        </section>
-      </div>
-    </section>
+        <!-- Scroll indicator down arrow -->
+        <div v-if="idx < slides.length - 1" class="scroll-hint" @click="scrollToSlide(idx + 1)">
+          <span>继续滑动</span>
+        </div>
+      </section>
+    </div>
 
-    <section v-else-if="view === 'test'" class="test-stage">
+    <!-- Right Side Pagination Dots -->
+    <nav class="slide-nav">
+      <button
+        v-for="(_, idx) in slides"
+        :key="idx"
+        class="slide-nav-dot"
+        :class="{ active: currentActiveSlide === idx }"
+        :aria-label="'Go to slide ' + (idx + 1)"
+        type="button"
+        @click="scrollToSlide(idx)"
+      ></button>
+    </nav>
+  </div>
+
+  <!-- TEST & RESULT VIEWS -->
+  <main v-else class="app-shell" :class="[view === 'test' ? 'test-mode' : '', view === 'result' ? 'result-mode' : '']">
+    <header class="topbar">
+      <button class="brand" type="button" @click="resetTest">
+        <span class="brand-mark">M</span>
+        <span>MITI</span>
+      </button>
+      <div class="nav-meta">
+        <span>三游人格测试</span>
+        <span>{{ characters.length }} 位角色</span>
+        <span>{{ questions.length }} 道题</span>
+      </div>
+    </header>
+
+    <!-- Answer Test Stage -->
+    <section v-if="view === 'test'" class="test-stage">
       <div class="progress-wrap" aria-label="答题进度">
         <div class="progress-label">
           <span>第 {{ currentIndex + 1 }} 题 / {{ questions.length }}</span>
@@ -390,6 +765,7 @@ async function exportPoster() {
       </div>
     </section>
 
+    <!-- Test Result Stage -->
     <section v-else class="result-stage" :style="resultThemeStyle">
       <article class="result-card">
         <div class="result-portrait">
@@ -513,6 +889,7 @@ async function exportPoster() {
         </span>
       </aside>
 
+      <!-- Hide Poster from standard flow, only for PNG conversion -->
       <article ref="posterRef" class="poster" :style="resultThemeStyle" aria-hidden="true">
         <div class="poster-top">
           <span>MITI</span>
